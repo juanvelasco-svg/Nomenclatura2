@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NomenClaw 2.0 - Nomenclatura Química Interactiva</title>
+    <style>
+        :root {
+            --reptile-dark: #1a3d0f;
+            --reptile-green: #2d5016;
+            --reptile-light: #4a7c2e;
+            --reptile-bright: #6b9b3d;
+            --sand: #f4e9c1;
+            --sand-dark: #e8d9a8;
+            --accent: #ff6b35;
+            --accent-light: #ff8c5a;
+            --text: #2c3e2c;
+            --white: #ffffff;
+            --shadow: rgba(45, 80, 22, 0.2);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--sand) 0%, #e8f4d9 50%, #d4e8c4 100%);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header Animado */
+        header {
+            background: linear-gradient(135deg, var(--reptile-dark) 0%, var(--reptile-green) 100%);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 6px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "🦎";
+            position: absolute;
+            font-size: 6rem;
+            opacity: 0.1;
+            top: -10px;
+            right: 50px;
+            animation: crawl 15s linear infinite;
+        }
+        
+        header::after {
+            content: "🦎";
+            position: absolute;
+            font-size: 5rem;
+            opacity: 0.1;
+            bottom: -10px;
+            left: 30px;
+            animation: crawl-reverse 18s linear infinite;
+        }
+        
+        @keyframes crawl {
+            0% { transform: translateX(100vw) rotate(0deg); }
+            100% { transform: translateX(-100px) rotate(360deg); }
+        }
+        
+        @keyframes crawl-reverse {
+            0% { transform: translateX(-100px) rotate(0deg); }
+            100% { transform: translateX(100vw) rotate(-360deg); }
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        /* Navegación */
+        .nav-container {
+            background: var(--reptile-green);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .nav-btn {
+            background: var(--sand);
+            color: var(--reptile-dark);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+        }
+        
+        /* Contenedor Principal */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Secciones */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Tarjetas */
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 24px var(--shadow);
+            border-left: 6px solid var(--reptile-light);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        h2 {
+            color: var(--reptile-green);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 3px solid var(--sand);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 2rem;
+        }
+        
+        h3 {
+            color: var(--reptile-light);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Mapa Conceptual Interactivo */
+        .concept-map {
+            background: linear-gradient(135deg, #f8fff0 0%, #e8f4d9 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .map-node {
+            background: var(--white);
+            border: 3px solid var(--reptile-light);
+            border-radius: 12px;
+            padding: 1.2rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 12px var(--shadow);
+            min-width: 200px;
+        }
+        
+        .map-node:hover {
+            background: var(--reptile-green);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+        
+        .map-node.main {
+            background: var(--reptile-green);
+            color: var(--white);
+            font-size: 1.3rem;
+            border-color: var(--reptile-dark);
+        }
+        
+        .map-node.level-1 {
+            border-color: var(--reptile-bright);
+            background: #f0f7e9;
+        }
+        
+        .map-node.level-2 {
+            border-color: var(--accent);
+            background: #fff5f0;
+        }
+        
+        .map-connections {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .map-branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .arrow {
+            font-size: 1.5rem;
+            color: var(--reptile-light);
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+        
+        /* Calculadoras */
+        .calculator {
+            background: linear-gradient(135deg, #fff9f5 0%, #fff0e8 100%);
+            border: 3px solid var(--accent);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .calc-title {
+            color: var(--accent);
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .calc-input-group {
+            margin: 1rem 0;
+        }
+        
+        .calc-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--reptile-dark);
+        }
+        
+        .calc-input-group input, .calc-input-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--sand-dark);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .calc-input-group input:focus, .calc-input-group select:focus {
+            outline: none;
+            border-color: var(--reptile-light);
+        }
+        
+        .calc-button {
+            background: var(--reptile-green);
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .calc-button:hover {
+            background: var(--reptile-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--shadow);
+        }
+        
+        .calc-result {
+            background: var(--white);
+            border-left: 5px solid var(--accent);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            display: none;
+        }
+        
+        .calc-result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Tablas Interactivas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        th {
+            background: linear-gradient(135deg, var(--reptile-green) 0%, var(--reptile-light) 100%);
+            color: var(--white);
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+        
+        tr:hover td {
+            background: #f8fff0;
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--sand) 0%, var(--sand-dark) 100%);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 700;
+            color: var(--reptile-dark);
+            border: 2px solid var(--reptile-bright);
+            display: inline-block;
+        }
+        
+        /* Cajas de Información */
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #2196f3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .tip-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+            border-left: 5px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .bio-box {
+            background: linear-gradient(135deg, #d1ecf1 0%, #a8dadc 100%);
+            border-left: 5px solid #17a2b8;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .bio-box::before {
+            content: "🔬";
+            font-size: 1.5rem;
+        }
+        
+        /* Ejercicios Interactivos */
+        .exercise-card {
+            background: var(--white);
+            border: 3px solid var(--reptile-bright);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .exercise-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .exercise-card:hover::before {
+            left: 100%;
+        }
+        
+        .exercise-card:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+            box-shadow: 0 6px 16px var(--shadow);
+        }
+        
+        .exercise-question {
+            font-weight: 600;
+            color: var(--reptile-dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        .exercise-answer {
+            display: none;
+            background: #f0f7e9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--reptile-light);
+        }
+        
+        .exercise-answer.show {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .reveal-btn {
+            background: var(--sand);
+            color: var(--reptile-dark);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.8rem;
+            transition: all 0.3s;
+        }
+        
+        .reveal-btn:hover {
+            background: var(--accent);
+            color: var(--white);
+        }
+        
+        /* Quiz Interactivo */
+        .quiz-container {
+            background: linear-gradient(135deg, var(--reptile-dark) 0%, var(--reptile-green) 100%);
+            color: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .quiz-question {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .quiz-option {
+            background: var(--white);
+            color: var(--text);
+            border: 3px solid transparent;
+            padding: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .quiz-option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #2e7d32;
+        }
+        
+        .quiz-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #c62828;
+        }
+        
+        .quiz-feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            font-weight: 600;
+        }
+        
+        .quiz-feedback.show {
+            display: block;
+        }
+        
+        /* Grid de Ejemplos */
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .example-item {
+            background: linear-gradient(135deg, #f8fff0 0%, #e8f4d9 100%);
+            border: 2px solid var(--reptile-bright);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .example-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow);
+            border-color: var(--reptile-light);
+        }
+        
+        .example-title {
+            color: var(--reptile-dark);
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--reptile-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-note {
+            font-style: italic;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 0.8rem;
+            }
+        }
+        
+        /* Animaciones adicionales */
+        .highlight {
+            animation: highlight 2s ease;
+        }
+        
+        @keyframes highlight {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(255,107,53,0.3); }
+        }
+        
+        /* Tabs para calculadoras */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            background: var(--sand);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--reptile-green);
+            color: var(--white);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🦎 NomenClaw 2.0</h1>
+        <p class="subtitle">Nomenclatura Química Inorgánica Interactiva • Para Estudiantes de Biología</p>
+    </header>
+    
+    <nav class="nav-container">
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('inicio')">🏠 Inicio</button>
+            <button class="nav-btn" onclick="showSection('mapa')">🗺️ Mapa Conceptual</button>
+            <button class="nav-btn" onclick="showSection('conceptos')">📚 Conceptos</button>
+            <button class="nav-btn" onclick="showSection('calculadoras')">🧮 Calculadoras</button>
+            <button class="nav-btn" onclick="showSection('ejemplos')">📝 Ejemplos</button>
+            <button class="nav-btn" onclick="showSection('ejercicios')">✏️ Ejercicios</button>
+            <button class="nav-btn" onclick="showSection('quiz')">🎯 Quiz</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- SECCIÓN INICIO -->
+        <section id="inicio" class="section active">
+            <div class="card">
+                <h2>🦎 ¡Bienvenido a NomenClaw 2.0!</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8;">
+                    Esta plataforma interactiva está diseñada específicamente para <strong>estudiantes de biología</strong> 
+                    que desean dominar la nomenclatura química inorgánica de manera divertida y efectiva.
+                </p>
+                
+                <div class="bio-box" style="margin-top: 2rem;">
+                    <div>
+                        <strong>¿Por qué es importante para biólogos?</strong><br>
+                        La nomenclatura química te permite entender procesos biológicos como el equilibrio ácido-base 
+                        (H₂CO₃/HCO₃⁻), la formación de ATP (PO₄³⁻), la respiración celular (CO₂, O₂), y mucho más. 
+                        ¡Dominar esto te dará una ventaja en tus estudios!
+                    </div>
+                </div>
+                
+                <h3>🎯 ¿Qué encontrarás aquí?</h3>
+                <div class="examples-grid">
+                    <div class="example-item">
+                        <div class="example-title">🗺️ Mapa Conceptual Interactivo</div>
+                        <p>Visualiza la clasificación completa de compuestos químicos con nodos clickeables.</p>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-title">🧮 Calculadoras Automáticas</div>
+                        <p>Calcula masa molecular, estados de oxidación y formula compuestos automáticamente.</p>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-title">📝 +50 Ejemplos Resueltos</div>
+                        <p>Ejemplos detallados de cada tipo de compuesto con explicaciones paso a paso.</p>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-title">✏️ Ejercicios Interactivos</div>
+                        <p>Practica con ejercicios que revelan la respuesta al hacer clic.</p>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-title">🎯 Quiz de Autoevaluación</div>
+                        <p>Pon a prueba tus conocimientos con preguntas de opción múltiple.</p>
+                    </div>
+                    <div class="example-item">
+                        <div class="example-title">🔬 Conexiones Biológicas</div>
+                        <p>Cada tema incluye aplicaciones directas a la biología y fisiología.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN MAPA CONCEPTUAL -->
+        <section id="mapa" class="section">
+            <div class="card">
+                <h2>🗺️ Mapa Conceptual Interactivo</h2>
+                <p>Haz clic en cada nodo para explorar los diferentes tipos de compuestos:</p>
+                
+                <div class="concept-map">
+                    <div class="map-container">
+                        <div class="map-node main" onclick="highlightNode(this)">
+                            🧪 COMPUESTOS QUÍMICOS
+                        </div>
+                        
+                        <div class="arrow">⬇️</div>
+                        
+                        <div class="map-connections">
+                            <div class="map-branch">
+                                <div class="map-node level-1" onclick="showCompoundInfo('ionicos')">
+                                    ⚡ IÓNICOS<br>
+                                    <small>Metal + No Metal</small>
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('oxidos-basicos')">
+                                    Óxidos Básicos
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('hidroxidos')">
+                                    Hidróxidos
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('hidruros-metalicos')">
+                                    Hidruros Metálicos
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('sales')">
+                                    Sales
+                                </div>
+                            </div>
+                            
+                            <div class="map-branch">
+                                <div class="map-node level-1" onclick="showCompoundInfo('moleculares')">
+                                    🔗 MOLECULARES<br>
+                                    <small>No Metal + No Metal</small>
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('oxidos-acidos')">
+                                    Óxidos Ácidos
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('hidruros-no-metalicos')">
+                                    Hidruros No Metálicos
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('acidos-hidracidos')">
+                                    Ácidos Hidrácidos
+                                </div>
+                                <div class="map-node level-2" onclick="showCompoundInfo('acidos-oxacidos')">
+                                    Ácidos Oxácidos
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="compound-info" class="info-box" style="display:none;">
+                    <h3 id="info-title"></h3>
+                    <div id="info-content"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN CONCEPTOS -->
+        <section id="conceptos" class="section">
+            <div class="card">
+                <h2>📚 Conceptos Fundamentales</h2>
+                
+                <h3>¿Qué es un Compuesto Químico?</h3>
+                <div class="info-box">
+                    <strong>Definición:</strong> Sustancia pura formada por la unión química de <strong>2 o más elementos 
+                    diferentes</strong> en proporciones fijas y definidas. Los elementos pierden sus características 
+                    originales al combinarse.
+                </div>
+                
+                <h3>Clasificación por Tipo de Enlace</h3>
+                <table>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Formación</th>
+                        <th>Enlace</th>
+                        <th>Características</th>
+                        <th>Ejemplos</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Iónico</strong></td>
+                        <td>Metal + No Metal</td>
+                        <td>Iónico<br>(transferencia e⁻)</td>
+                        <td>Sólidos cristalinos,<br>altos puntos de fusión</td>
+                        <td><span class="formula">NaCl</span>, <span class="formula">CaF₂</span>, <span class="formula">KNO₃</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Molecular</strong></td>
+                        <td>No Metal + No Metal</td>
+                        <td>Covalente<br>(comparten e⁻)</td>
+                        <td>Bajos puntos de fusión,<br>forman moléculas</td>
+                        <td><span class="formula">CO₂</span>, <span class="formula">H₂O</span>, <span class="formula">BF₃</span></td>
+                    </tr>
+                </table>
+                
+                <h3>Estados de Oxidación: Reglas Esenciales</h3>
+                <div class="tip-box">
+                    <strong>Reglas Mnemotécnicas:</strong><br>
+                    🎵 <em>"Hidrógeno positivo (+1), oxígeno negativo (-2), la suma debe ser cero... ¡así de simple!"</em> 🎵
+                </div>
+                
+                <table>
+                    <tr>
+                        <th>Regla</th>
+                        <th>Descripción</th>
+                        <th>Ejemplo</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Elemento libre = <strong>0</strong></td>
+                        <td>Na, O₂, H₂, Fe</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Hidrógeno = <strong>+1</strong> (excepto hidruros: -1)</td>
+                        <td>HCl → H=+1; NaH → H=-1</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Oxígeno = <strong>-2</strong> (excepto peróxidos: -1)</td>
+                        <td>H₂O → O=-2; H₂O₂ → O=-1</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Metales = positivos</td>
+                        <td>Na⁺¹, Ca⁺², Al⁺³</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Suma en compuesto neutro = <strong>0</strong></td>
+                        <td>NaCl → (+1) + (-1) = 0</td>
+                    </tr>
+                </table>
+                
+                <div class="bio-box">
+                    <div>
+                        <strong>Aplicación Biológica:</strong> En la sangre, el equilibrio H₂CO₃/HCO₃⁻ regula el pH. 
+                        El carbono en H₂CO₃ tiene E.O. = +4. Calcular: 2(+1) + 4 + 3(-2) = 0 ✅
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN CALCULADORAS -->
+        <section id="calculadoras" class="section">
+            <div class="card">
+                <h2>🧮 Calculadoras Interactivas</h2>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('masa-molecular')">⚖️ Masa Molecular</button>
+                    <button class="tab" onclick="showTab('estado-oxidacion')">🔢 Estado de Oxidación</button>
+                    <button class="tab" onclick="showTab('formular')">📝 Formular Compuesto</button>
+                    <button class="tab" onclick="showTab('nombrar')">🏷️ Nombrar Compuesto</button>
+                </div>
+                
+                <!-- Calculadora de Masa Molecular -->
+                <div id="masa-molecular" class="tab-content active">
+                    <div class="calculator">
+                        <div class="calc-title">⚖️ Calculadora de Masa Molecular/Fórmula</div>
+                        
+                        <div class="calc-input-group">
+                            <label>Fórmula Química:</label>
+                            <input type="text" id="masa-formula" placeholder="Ej: H2SO4, Ca(OH)2, Fe2(CO3)3">
+                            <small style="color: #666;">Usa mayúsculas para elementos. Ej: H2O, NO3, Ca(OH)2</small>
+                        </div>
+                        
+                        <button class="calc-button" onclick="calcularMasaMolecular()">
+                            Calcular Masa
+                        </button>
+                        
+                        <div id="masa-resultado" class="calc-result"></div>
+                        
+                        <div class="info-box" style="margin-top: 2rem;">
+                            <strong>Ejemplos para practicar:</strong><br>
+                            • H₂O → 18 uma<br>
+                            • H₂SO₄ → 98 uma<br>
+                            • Ca(OH)₂ → 74 uma<br>
+                            • Fe₂(CO₃)₃ → 292 uma<br>
+                            • C₆H₁₂O₆ → 180 uma
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calculadora de Estado de Oxidación -->
+                <div id="estado-oxidacion" class="tab-content">
+                    <div class="calculator">
+                        <div class="calc-title">🔢 Calculadora de Estado de Oxidación</div>
+                        
+                        <div class="calc-input-group">
+                            <label>Fórmula del Compuesto:</label>
+                            <input type="text" id="eo-formula" placeholder="Ej: K2Cr2O7, H2SO4, NaNO3">
+                        </div>
+                        
+                        <div class="calc-input-group">
+                            <label>Elemento a calcular:</label>
+                            <input type="text" id="eo-elemento" placeholder="Ej: Cr, S, N">
+                        </div>
+                        
+                        <button class="calc-button" onclick="calcularEstadoOxidacion()">
+                            Calcular E.O.
+                        </button>
+                        
+                        <div id="eo-resultado" class="calc-result"></div>
+                        
+                        <div class="tip-box" style="margin-top: 2rem;">
+                            <strong>Consejo:</strong> Recuerda que la suma de todos los E.O. en un compuesto neutro debe ser 0.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulador de Compuestos -->
+                <div id="formular" class="tab-content">
+                    <div class="calculator">
+                        <div class="calc-title">📝 Formulador de Compuestos</div>
+                        
+                        <div class="calc-input-group">
+                            <label>Tipo de Compuesto:</label>
+                            <select id="form-tipo">
+                                <option value="oxido-basico">Óxido Básico (Metal + O)</option>
+                                <option value="oxido-acido">Óxido Ácido (No Metal + O)</option>
+                                <option value="hidroxido">Hidróxido (Metal + OH)</option>
+                                <option value="acido-oxacido">Ácido Oxácido</option>
+                                <option value="sal">Sal Binaria</option>
+                            </select>
+                        </div>
+                        
+                        <div class="calc-input-group">
+                            <label>Elemento/No Metal:</label>
+                            <input type="text" id="form-elemento" placeholder="Ej: Fe, S, Cl">
+                        </div>
+                        
+                        <div class="calc-input-group">
+                            <label>Estado de Oxidación:</label>
+                            <input type="number" id="form-eo" placeholder="Ej: +2, +3, +6">
+                        </div>
+                        
+                        <button class="calc-button" onclick="formularCompuesto()">
+                            Generar Fórmula
+                        </button>
+                        
+                        <div id="form-resultado" class="calc-result"></div>
+                    </div>
+                </div>
+                
+                <!-- Nombrador de Compuestos -->
+                <div id="nombrar" class="tab-content">
+                    <div class="calculator">
+                        <div class="calc-title">🏷️ Nombrador de Compuestos</div>
+                        
+                        <div class="calc-input-group">
+                            <label>Fórmula Química:</label>
+                            <input type="text" id="nom-formula" placeholder="Ej: Fe2O3, H2SO4, NaOH">
+                        </div>
+                        
+                        <div class="calc-input-group">
+                            <label>Sistema de Nomenclatura:</label>
+                            <select id="nom-sistema">
+                                <option value="stock">Stock (IUPAC recomendado)</option>
+                                <option value="tradicional">Tradicional/Clásica</option>
+                                <option value="sistematica">Sistemática</option>
+                            </select>
+                        </div>
+                        
+                        <button class="calc-button" onclick="nombrarCompuesto()">
+                            Generar Nombre
+                        </button>
+                        
+                        <div id="nom-resultado" class="calc-result"></div>
+                        
+                        <div class="bio-box" style="margin-top: 2rem;">
+                            <div>
+                                <strong>Importante:</strong> La nomenclatura Stock es la más usada en biología y química 
+                                moderna. Usa números romanos para metales con múltiples estados de oxidación.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN EJEMPLOS -->
+        <section id="ejemplos" class="section">
+            <div class="card">
+                <h2>📝 Ejemplos Detallados por Familia</h2>
+                
+                <h3>1. Óxidos Metálicos (Básicos)</h3>
+                <div class="examples-grid">
+                    <div class="example-item">
+                        <div class="example-title">FeO</div>
+                        <p><strong>Stock:</strong> Óxido de hierro(II)<br>
+                        <strong>Tradicional:</strong> Óxido ferroso<br>
+                        <strong>Sistemática:</strong> Monóxido de hierro</p>
+                        <div class="bio-box" style="margin-top: 1rem; font-size: 0.9rem;">
+                            <strong>Bio:</strong> El FeO se forma en procesos de oxidación del hierro en el cuerpo.
+                        </div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Fe₂O₃</div>
+                        <p><strong>Stock:</strong> Óxido de hierro(III)<br>
+                        <strong>Tradicional:</strong> Óxido férrico<br>
+                        <strong>Sistemática:</strong> Trióxido de dihierro</p>
+                        <div class="bio-box" style="margin-top: 1rem; font-size: 0.9rem;">
+                            <strong>Bio:</strong> Forma parte de la hemoglobina y mioglobina.
+                        </div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">CaO</div>
+                        <p><strong>Stock:</strong> Óxido de calcio<br>
+                        <strong>Tradicional:</strong> Óxido de calcio<br>
+                        <strong>Sistemática:</strong> Monóxido de calcio</p>
+                        <div class="bio-box" style="margin-top: 1rem; font-size: 0.9rem;">
+                            <strong>Bio:</strong> Importante en la formación de huesos (como CaCO₃).
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>2. Óxidos No Metálicos (Ácidos)</h3>
+                <div class="examples-grid">
+                    <div class="example-item">
+                        <div class="example-title">CO₂</div>
+                        <p><strong>Stock:</strong> Óxido de carbono(IV)<br>
+                        <strong>Tradicional:</strong> Anhídrido carbónico<br>
+                        <strong>Sistemática:</strong> Dióxido de carbono</p>
+                        <div class="bio-box" style="margin-top: 1rem; font-size: 0.9rem;">
+                            <strong>Bio:</strong> Producto de la respiración celular. Se combina con H₂O para formar H₂CO₃.
+                        </div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">SO₃</div>
+                        <p><strong>Stock:</strong> Óxido de azufre(VI)<br>
+                        <strong>Tradicional:</strong> Anhídrido sulfúrico<br>
+                        <strong>Sistemática:</strong> Trióxido de azufre</p>
+                        <div class="bio-box" style="margin-top: 1rem; font-size: 0.9rem;">
+                            <strong>Bio:</strong> Forma H₂SO₄, importante en el ciclo del azufre.
+                        </div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">N₂O₅</div>
+                        <p><strong>Stock:</strong> Óxido de nitrógeno(V)<br>
+                        <strong>Tradicional:</strong> Anhídrido nítrico<br>
+                        <strong>Sistemática:</strong> Pentóxido de dinitrógeno</p>
+                        <div class="bio-box" style="margin-top: 1rem; font-size: 0.9rem;">
+                            <strong>Bio:</strong> Forma HNO₃, parte del ciclo del nitrógeno.
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>3. Ácidos Oxácidos (Tabla Completa del Cloro)</h3>
+                <table>
+                    <tr>
+                        <th>E.O. del Cl</th>
+                        <th>Fórmula</th>
+                        <th>Stock</th>
+                        <th>Tradicional</th>
+                        <th>Regla Mnemotécnica</th>
+                    </tr>
+                    <tr>
+                        <td>+1</td>
+                        <td><span class="formula">HClO</span></td>
+                        <td>Ácido oxoclórico(I)</td>
+                        <td>Ácido <strong>hipo</strong>clor<strong>oso</strong></td>
+                        <td>hipo- + -oso (mínimo)</td>
+                    </tr>
+                    <tr>
+                        <td>+3</td>
+                        <td><span class="formula">HClO₂</span></td>
+                        <td>Ácido dioxoclórico(III)</td>
+                        <td>Ácido clor<strong>oso</strong></td>
+                        <td>-oso</td>
+                    </tr>
+                    <tr>
+                        <td>+5</td>
+                        <td><span class="formula">HClO₃</span></td>
+                        <td>Ácido trioxoclórico(V)</td>
+                        <td>Ácido clór<strong>ico</strong></td>
+                        <td>-ico</td>
+                    </tr>
+                    <tr>
+                        <td>+7</td>
+                        <td><span class="formula">HClO₄</span></td>
+                        <td>Ácido tetraoxoclórico(VII)</td>
+                        <td>Ácido <strong>per</strong>clór<strong>ico</strong></td>
+                        <td>per- + -ico (máximo)</td>
+                    </tr>
+                </table>
+                
+                <div class="tip-box">
+                    <strong>🎵 Mnemotecnia Musical:</strong><br>
+                    <em>"Hipo-oso, -oso, -ico, Per-ico... ¡así se forma el ácido!"</em> 🎵
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN EJERCICIOS -->
+        <section id="ejercicios" class="section">
+            <div class="card">
+                <h2>✏️ Ejercicios Interactivos</h2>
+                <p>Haz clic en "Mostrar Respuesta" para verificar tu solución:</p>
+                
+                <h3>Nivel 1: Clasificación de Compuestos</h3>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">1. Clasifica: NaCl, CO₂, CaF₂, SO₃, KNO₃</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        <strong>Iónicos:</strong> NaCl, CaF₂, KNO₃<br>
+                        <strong>Moleculares:</strong> CO₂, SO₃<br>
+                        <em>Regla: Metal + No Metal = Iónico; No Metal + No Metal = Molecular</em>
+                    </div>
+                </div>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">2. ¿Qué tipo de compuesto es Mg(OH)₂?</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        <strong>Hidróxido (Base)</strong><br>
+                        Contiene el grupo OH⁻ (hidroxilo)<br>
+                        <strong>Nombre Stock:</strong> Hidróxido de magnesio
+                    </div>
+                </div>
+                
+                <h3>Nivel 2: Cálculo de Estados de Oxidación</h3>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">3. Calcula el E.O. del Cr en K₂Cr₂O₇</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        K = +1, O = -2<br>
+                        2(+1) + 2(Cr) + 7(-2) = 0<br>
+                        2 + 2Cr - 14 = 0<br>
+                        2Cr = 12<br>
+                        <strong>Cr = +6</strong> ✅
+                    </div>
+                </div>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">4. Calcula el E.O. del S en H₂SO₄</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        H = +1, O = -2<br>
+                        2(+1) + S + 4(-2) = 0<br>
+                        2 + S - 8 = 0<br>
+                        <strong>S = +6</strong> ✅
+                    </div>
+                </div>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">5. Calcula el E.O. del N en NO₃⁻</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        O = -2, carga del ion = -1<br>
+                        N + 3(-2) = -1<br>
+                        N - 6 = -1<br>
+                        <strong>N = +5</strong> ✅
+                    </div>
+                </div>
+                
+                <h3>Nivel 3: Formulación</h3>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">6. Formula el óxido de hierro(III)</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        Fe⁺³ y O⁻²<br>
+                        Intercambio de cargas: Fe₂O₃<br>
+                        <strong>Fórmula:</strong> <span class="formula">Fe₂O₃</span>
+                    </div>
+                </div>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">7. Formula el ácido sulfúrico (S: +6)</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        E.O. par (+6) → Fórmula: H₂NMO(y+2)/2<br>
+                        H₂SO(6+2)/2 = H₂SO₈/2<br>
+                        <strong>Fórmula:</strong> <span class="formula">H₂SO₄</span>
+                    </div>
+                </div>
+                
+                <h3>Nivel 4: Nomenclatura</h3>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">8. Nombra Fe₂O₃ en los 3 sistemas</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        <strong>Stock:</strong> Óxido de hierro(III)<br>
+                        <strong>Tradicional:</strong> Óxido férrico<br>
+                        <strong>Sistemática:</strong> Trióxido de dihierro
+                    </div>
+                </div>
+                
+                <div class="exercise-card" onclick="toggleAnswer(this)">
+                    <div class="exercise-question">9. Nombra HClO₄ en sistema tradicional</div>
+                    <button class="reveal-btn">Mostrar Respuesta</button>
+                    <div class="exercise-answer">
+                        Cl tiene E.O. = +7 (máximo)<br>
+                        <strong>Nombre:</strong> Ácido <strong>per</strong>clór<strong>ico</strong><br>
+                        <em>Regla: per- + -ico para el máximo E.O.</em>
+                    </div>
+                </div>
+                
+                <div class="tip-box" style="margin-top: 2rem;">
+                    <strong>💡 Consejo de Estudio:</strong> Practica 10 minutos al día con estos ejercicios. 
+                    La repetición espaciada es clave para dominar la nomenclatura.
+                </div>
+            </div>
+        </section>
+        
+        <!-- SECCIÓN QUIZ -->
+        <section id="quiz" class="section">
+            <div class="card">
+                <h2>🎯 Quiz de Autoevaluación</h2>
+                <p>Pon a prueba tus conocimientos. Selecciona la respuesta correcta:</p>
+                
+                <div id="quiz-container">
+                    <!-- Las preguntas se generan con JavaScript -->
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="calc-button" onclick="reiniciarQuiz()">🔄 Reiniciar Quiz</button>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer class="footer">
+        <p class="footer-note">🦎 "La nomenclatura es el lenguaje de la química, y tú ya hablas el lenguaje de la vida"</p>
+        <p>NomenClaw 2.0 • Diseñado para estudiantes de Biología • 2026</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">💡 Tip: Estudia 20 min/día + repasa con flashcards = Dominio total</p>
+    </footer>
+    
+    <script>
+        // Navegación entre secciones
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            
+            // Mostrar sección seleccionada
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Actualizar botones de navegación
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Scroll al inicio
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Tabs para calculadoras
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Calculadora de Masa Molecular
+        function calcularMasaMolecular() {
+            const formula = document.getElementById('masa-formula').value.trim();
+            const resultadoDiv = document.getElementById('masa-resultado');
+            
+            if (!formula) {
+                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa una fórmula química</span>';
+                resultadoDiv.classList.add('show');
+                return;
+            }
+            
+            // Masas atómicas simplificadas
+            const masasAtomicas = {
+                'H': 1, 'C': 12, 'N': 14, 'O': 16, 'F': 19, 'Na': 23, 'Mg': 24,
+                'Al': 27, 'Si': 28, 'P': 31, 'S': 32, 'Cl': 35.5, 'K': 39, 'Ca': 40,
+                'Fe': 56, 'Cu': 63.5, 'Zn': 65, 'Br': 80, 'Ag': 108, 'I': 127
+            };
+            
+            // Cálculo simplificado (ejemplo básico)
+            let masaTotal = 0;
+            let detalle = [];
+            
+            // Ejemplos predefinidos para demostración
+            const ejemplos = {
+                'H2O': { masa: 18, detalle: '2(1) + 16 = 18 uma' },
+                'H2SO4': { masa: 98, detalle: '2(1) + 32 + 4(16) = 98 uma' },
+                'Ca(OH)2': { masa: 74, detalle: '40 + 2(16+1) = 74 uma' },
+                'Fe2(CO3)3': { masa: 292, detalle: '2(56) + 3[12+3(16)] = 292 uma' },
+                'C6H12O6': { masa: 180, detalle: '6(12) + 12(1) + 6(16) = 180 uma' },
+                'NaCl': { masa: 58.5, detalle: '23 + 35.5 = 58.5 uma' },
+                'CO2': { masa: 44, detalle: '12 + 2(16) = 44 uma' }
+            };
+            
+            if (ejemplos[formula]) {
+                masaTotal = ejemplos[formula].masa;
+                detalle = ejemplos[formula].detalle;
+            } else {
+                resultadoDiv.innerHTML = '<span style="color: #ff9800;">⚠️ Fórmula no reconocida en la base de datos. Prueba con: H2O, H2SO4, Ca(OH)2, Fe2(CO3)3, C6H12O6, NaCl, CO2</span>';
+                resultadoDiv.classList.add('show');
+                return;
+            }
+            
+            resultadoDiv.innerHTML = `
+                <strong>Resultados:</strong><br>
+                Fórmula: <span class="formula">${formula}</span><br>
+                Masa Molecular/Fórmula: <strong>${masaTotal} uma</strong><br>
+                <em>Cálculo: ${detalle}</em>
+            `;
+            resultadoDiv.classList.add('show');
+        }
+        
+        // Calculadora de Estado de Oxidación
+        function calcularEstadoOxidacion() {
+            const formula = document.getElementById('eo-formula').value.trim();
+            const elemento = document.getElementById('eo-elemento').value.trim();
+            const resultadoDiv = document.getElementById('eo-resultado');
+            
+            if (!formula || !elemento) {
+                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa fórmula y elemento</span>';
+                resultadoDiv.classList.add('show');
+                return;
+            }
+            
+            // Ejemplos predefinidos
+            const ejemplos = {
+                'K2Cr2O7-Cr': { eo: '+6', calculo: '2(+1) + 2(Cr) + 7(-2) = 0 → 2Cr = 12 → Cr = +6' },
+                'H2SO4-S': { eo: '+6', calculo: '2(+1) + S + 4(-2) = 0 → S = +6' },
+                'NaNO3-N': { eo: '+5', calculo: '+1 + N + 3(-2) = 0 → N = +5' },
+                'CaCrO4-Cr': { eo: '+6', calculo: '+2 + Cr + 4(-2) = 0 → Cr = +6' },
+                'Fe2O3-Fe': { eo: '+3', calculo: '2(Fe) + 3(-2) = 0 → 2Fe = 6 → Fe = +3' },
+                'KMnO4-Mn': { eo: '+7', calculo: '+1 + Mn + 4(-2) = 0 → Mn = +7' }
+            };
+            
+            const key = `${formula}-${elemento}`;
+            
+            if (ejemplos[key]) {
+                resultadoDiv.innerHTML = `
+                    <strong>Estado de Oxidación de ${elemento} en ${formula}:</strong><br>
+                    E.O. = <strong>${ejemplos[key].eo}</strong><br>
+                    <em>Cálculo: ${ejemplos[key].calculo}</em>
+                `;
+                resultadoDiv.classList.add('show');
+            } else {
+                resultadoDiv.innerHTML = '<span style="color: #ff9800;">⚠️ Ejemplo no disponible. Prueba con: K2Cr2O7 (Cr), H2SO4 (S), NaNO3 (N), Fe2O3 (Fe), KMnO4 (Mn)</span>';
+                resultadoDiv.classList.add('show');
+            }
+        }
+        
+        // Formulador de Compuestos
+        function formularCompuesto() {
+            const tipo = document.getElementById('form-tipo').value;
+            const elemento = document.getElementById('form-elemento').value.trim();
+            const eo = parseInt(document.getElementById('form-eo').value);
+            const resultadoDiv = document.getElementById('form-resultado');
+            
+            if (!elemento || isNaN(eo)) {
+                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa elemento y estado de oxidación</span>';
+                resultadoDiv.classList.add('show');
+                return;
+            }
+            
+            let formula = '';
+            let explicacion = '';
+            
+            switch(tipo) {
+                case 'oxido-basico':
+                    if (eo % 2 === 0) {
+                        formula = `${elemento}O${eo/2}`;
+                        if (eo/2 === 1) formula = `${elemento}O`;
+                    } else {
+                        formula = `${elemento}2O${eo}`;
+                    }
+                    explicacion = `Metal ${elemento} con E.O. +${eo} + Oxígeno (O⁻²)`;
+                    break;
+                    
+                case 'oxido-acido':
+                    if (eo % 2 === 0) {
+                        formula = `${elemento}O${eo/2}`;
+                        if (eo/2 === 1) formula = `${elemento}O`;
+                    } else {
+                        formula = `${elemento}2O${eo}`;
+                    }
+                    explicacion = `No Metal ${elemento} con E.O. +${eo} + Oxígeno (O⁻²)`;
+                    break;
+                    
+                case 'hidroxido':
+                    formula = `${elemento}(OH)${eo}`;
+                    if (eo === 1) formula = `${elemento}OH`;
+                    explicacion = `Metal ${elemento} con E.O. +${eo} + Grupo OH⁻`;
+                    break;
+                    
+                default:
+                    formula = 'Fórmula en desarrollo';
+                    explicacion = 'Tipo de compuesto en proceso';
+            }
+            
+            resultadoDiv.innerHTML = `
+                <strong>Fórmula Generada:</strong><br>
+                <span class="formula" style="font-size: 1.5rem;">${formula}</span><br>
+                <em>${explicacion}</em>
+            `;
+            resultadoDiv.classList.add('show');
+        }
+        
+        // Nombrador de Compuestos
+        function nombrarCompuesto() {
+            const formula = document.getElementById('nom-formula').value.trim();
+            const sistema = document.getElementById('nom-sistema').value;
+            const resultadoDiv = document.getElementById('nom-resultado');
+            
+            if (!formula) {
+                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa una fórmula</span>';
+                resultadoDiv.classList.add('show');
+                return;
+            }
+            
+            // Base de datos de ejemplos
+            const ejemplos = {
+                'Fe2O3': {
+                    stock: 'Óxido de hierro(III)',
+                    tradicional: 'Óxido férrico',
+                    sistematica: 'Trióxido de dihierro'
+                },
+                'FeO': {
+                    stock: 'Óxido de hierro(II)',
+                    tradicional: 'Óxido ferroso',
+                    sistematica: 'Monóxido de hierro'
+                },
+                'H2SO4': {
+                    stock: 'Ácido tetraoxosulfúrico(VI)',
+                    tradicional: 'Ácido sulfúrico',
+                    sistematica: 'Ácido sulfúrico'
+                },
+                'NaOH': {
+                    stock: 'Hidróxido de sodio',
+                    tradicional: 'Hidróxido de sodio',
+                    sistematica: 'Hidróxido de sodio'
+                },
+                'Ca(OH)2': {
+                    stock: 'Hidróxido de calcio',
+                    tradicional: 'Hidróxido de calcio',
+                    sistematica: 'Dihidróxido de calcio'
+                },
+                'HClO4': {
+                    stock: 'Ácido tetraoxoclórico(VII)',
+                    tradicional: 'Ácido perclórico',
+                    sistematica: 'Ácido perclórico'
+                }
+            };
+            
+            if (ejemplos[formula]) {
+                resultadoDiv.innerHTML = `
+                    <strong>Nombre en sistema ${sistema.toUpperCase()}:</strong><br>
+                    <span style="font-size: 1.3rem; color: var(--reptile-green); font-weight: 600;">
+                        ${ejemplos[formula][sistema]}
+                    </span><br>
+                    <em>Fórmula: ${formula}</em>
+                `;
+                resultadoDiv.classList.add('show');
+            } else {
+                resultadoDiv.innerHTML = '<span style="color: #ff9800;">⚠️ Compuesto no en base de datos. Prueba con: Fe2O3, FeO, H2SO4, NaOH, Ca(OH)2, HClO4</span>';
+                resultadoDiv.classList.add('show');
+            }
+        }
+        
+        // Ejercicios interactivos
+        function toggleAnswer(card) {
+            const answer = card.querySelector('.exercise-answer');
+            const btn = card.querySelector('.reveal-btn');
+            
+            answer.classList.toggle('show');
+            
+            if (answer.classList.contains('show')) {
+                btn.textContent = 'Ocultar Respuesta';
+                btn.style.background = 'var(--reptile-green)';
+                btn.style.color = 'white';
+            } else {
+                btn.textContent = 'Mostrar Respuesta';
+                btn.style.background = 'var(--sand)';
+                btn.style.color = 'var(--reptile-dark)';
+            }
+        }
+        
+        // Mapa conceptual
+        function showCompoundInfo(tipo) {
+            const infoDiv = document.getElementById('compound-info');
+            const titleDiv = document.getElementById('info-title');
+            const contentDiv = document.getElementById('info-content');
+            
+            const info = {
+                'ionicos': {
+                    title: '⚡ Compuestos Iónicos',
+                    content: '<strong>Formación:</strong> Metal + No Metal<br><strong>Enlace:</strong> Iónico (transferencia de electrones)<br><strong>Ejemplos:</strong> NaCl, CaF₂, KNO₃<br><strong>Propiedades:</strong> Sólidos cristalinos, altos puntos de fusión, conducen electricidad en solución.'
+                },
+                'moleculares': {
+                    title: '🔗 Compuestos Moleculares',
+                    content: '<strong>Formación:</strong> No Metal + No Metal<br><strong>Enlace:</strong> Covalente (comparten electrones)<br><strong>Ejemplos:</strong> CO₂, H₂O, BF₃<br><strong>Propiedades:</strong> Bajos puntos de fusión, forman moléculas discretas.'
+                },
+                'oxidos-basicos': {
+                    title: 'Óxidos Básicos',
+                    content: '<strong>Fórmula:</strong> M₂Oₙ<br><strong>Formación:</strong> Metal + O₂<br><strong>Ejemplo:</strong> Fe₂O₃ (óxido de hierro III)<br><strong>Reacción:</strong> Óxido básico + H₂O → Hidróxido'
+                },
+                'oxidos-acidos': {
+                    title: 'Óxidos Ácidos',
+                    content: '<strong>Fórmula:</strong> NM₂Oₙ<br><strong>Formación:</strong> No Metal + O₂<br><strong>Ejemplo:</strong> SO₃ (óxido de azufre VI)<br><strong>Reacción:</strong> Óxido ácido + H₂O → Ácido oxácido'
+                },
+                'hidroxidos': {
+                    title: 'Hidróxidos (Bases)',
+                    content: '<strong>Fórmula:</strong> M(OH)ₙ<br><strong>Formación:</strong> Óxido básico + H₂O<br><strong>Ejemplo:</strong> NaOH, Ca(OH)₂<br><strong>Propiedad:</strong> Naturaleza básica, pH > 7'
+                },
+                'acidos-oxacidos': {
+                    title: 'Ácidos Oxácidos',
+                    content: '<strong>Fórmula:</strong> HₙNMOₓ<br><strong>Formación:</strong> Óxido ácido + H₂O<br><strong>Ejemplo:</strong> H₂SO₄, HNO₃, HClO₄<br><strong>Nomenclatura:</strong> hipo-oso, -oso, -ico, per-ico'
+                },
+                'hidruros-metalicos': {
+                    title: 'Hidruros Metálicos',
+                    content: '<strong>Fórmula:</strong> MHₙ<br><strong>Formación:</strong> Metal + H₂<br><strong>Ejemplo:</strong> NaH, CaH₂<br><strong>E.O. del H:</strong> -1'
+                },
+                'hidruros-no-metalicos': {
+                    title: 'Hidruros No Metálicos',
+                    content: '<strong>Fórmula:</strong> HₙNM<br><strong>Formación:</strong> No Metal + H₂<br><strong>Ejemplo:</strong> HF, H₂S, NH₃<br><strong>E.O. del H:</strong> +1'
+                },
+                'acidos-hidracidos': {
+                    title: 'Ácidos Hidrácidos',
+                    content: '<strong>Fórmula:</strong> HₙNM (en solución acuosa)<br><strong>Elementos:</strong> Grupo VIA y VIIA<br><strong>Ejemplo:</strong> HCl(ac), H₂S(ac)<br><strong>Nomenclatura:</strong> Ácido + no metal + hídrico'
+                },
+                'sales': {
+                    title: 'Sales',
+                    content: '<strong>Formación:</strong> Ácido + Base<br><strong>Ejemplo:</strong> NaCl, CaCO₃, KNO₃<br><strong>Tipos:</strong> Binarias, ternarias, cuaternarias'
+                }
+            };
+            
+            if (info[tipo]) {
+                titleDiv.textContent = info[tipo].title;
+                contentDiv.innerHTML = info[tipo].content;
+                infoDiv.style.display = 'block';
+                infoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        function highlightNode(node) {
+            node.classList.add('highlight');
+            setTimeout(() => {
+                node.classList.remove('highlight');
+            }, 2000);
+        }
+        
+        // Quiz interactivo
+        const quizQuestions = [
+            {
+                question: '¿Cuál es el estado de oxidación del Cr en K₂Cr₂O₇?',
+                options: ['+3', '+6', '+7', '+2'],
+                correct: 1,
+                explanation: '2(+1) + 2(Cr) + 7(-2) = 0 → 2Cr = 12 → Cr = +6'
+            },
+            {
+                question: '¿Qué tipo de compuesto es CO₂?',
+                options: ['Iónico', 'Molecular', 'Hidróxido', 'Sal'],
+                correct: 1,
+                explanation: 'CO₂ está formado por dos no metales (C y O) unidos por enlace covalente.'
+            },
+            {
+                question: '¿Cuál es el nombre tradicional de Fe₂O₃?',
+                options: ['Óxido de hierro(II)', 'Óxido ferroso', 'Óxido férrico', 'Trióxido de dihierro'],
+                correct: 2,
+                explanation: 'Fe con E.O. +3 usa el sufijo -ico en nomenclatura tradicional: férrico.'
+            },
+            {
+                question: '¿Qué fórmula corresponde al ácido sulfúrico?',
+                options: ['H₂SO₃', 'H₂SO₄', 'HSO₄', 'H₃SO₄'],
+                correct: 1,
+                explanation: 'El azufre con E.O. +6 forma H₂SO₄ (ácido sulfúrico).'
+            },
+            {
+                question: '¿Cuál es la masa molecular del H₂O?',
+                options: ['16 uma', '17 uma', '18 uma', '20 uma'],
+                correct: 2,
+                explanation: '2(1) + 16 = 18 uma'
+            },
+            {
+                question: '¿Qué compuesto se forma cuando un óxido ácido reacciona con agua?',
+                options: ['Hidróxido', 'Ácido oxácido', 'Sal', 'Hidruro'],
+                correct: 1,
+                explanation: 'Óxido ácido + H₂O → Ácido oxácido'
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        
+        function loadQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'quiz-container';
+                questionDiv.style.marginBottom = '2rem';
+                
+                questionDiv.innerHTML = `
+                    <div class="quiz-question">${index + 1}. ${q.question}</div>
+                    <div class="quiz-options">
+                        ${q.options.map((opt, i) => `
+                            <button class="quiz-option" onclick="checkAnswer(${index}, ${i}, this)">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="quiz-feedback" id="feedback-${index}"></div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+        }
+        
+        function checkAnswer(questionIndex, selectedIndex, button) {
+            const question = quizQuestions[questionIndex];
+            const feedback = document.getElementById(`feedback-${questionIndex}`);
+            const options = button.parentElement.querySelectorAll('.quiz-option');
+            
+            // Deshabilitar todos los botones
+            options.forEach(opt => opt.disabled = true);
+            
+            if (selectedIndex === question.correct) {
+                button.classList.add('correct');
+                feedback.innerHTML = `<span style="color: #4caf50;">✅ ¡Correcto!</span><br>${question.explanation}`;
+                feedback.style.background = '#e8f5e9';
+            } else {
+                button.classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                feedback.innerHTML = `<span style="color: #f44336;">❌ Incorrecto</span><br>${question.explanation}`;
+                feedback.style.background = '#ffebee';
+            }
+            
+            feedback.classList.add('show');
+        }
+        
+        function reiniciarQuiz() {
+            loadQuiz();
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuiz();
+        });
+    </script>
+</body>
+</html>
