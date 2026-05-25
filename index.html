@@ -1271,426 +1271,261 @@
         <p>NomenClaw 2.0 • Diseñado para estudiantes de Biología • 2026</p>
         <p style="margin-top: 1rem; font-size: 0.9rem;">💡 Tip: Estudia 20 min/día + repasa con flashcards = Dominio total</p>
     </footer>
-    
     <script>
-        // Navegación entre secciones
-        function showSection(sectionId) {
-            // Ocultar todas las secciones
-            document.querySelectorAll('.section').forEach(sec => {
-                sec.classList.remove('active');
-            });
-            
-            // Mostrar sección seleccionada
-            document.getElementById(sectionId).classList.add('active');
-            
-            // Actualizar botones de navegación
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Scroll al inicio
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    // ================= BASES DE DATOS AMPLIADAS =================
+    const masasDB = {
+        'H2O': { masa: 18.0, detalle: '2(1) + 16 = 18 uma' },
+        'CO2': { masa: 44.0, detalle: '12 + 2(16) = 44 uma' },
+        'NA': { masa: 23.0, detalle: '23 uma' },
+        'NACL': { masa: 58.5, detalle: '23 + 35.5 = 58.5 uma' },
+        'H2SO4': { masa: 98.0, detalle: '2(1) + 32 + 4(16) = 98 uma' },
+        'CA(OH)2': { masa: 74.0, detalle: '40 + 2(16+1) = 74 uma' },
+        'FE2(CO3)3': { masa: 292.0, detalle: '2(56) + 3(12) + 9(16) = 292 uma' },
+        'C6H12O6': { masa: 180.0, detalle: '6(12) + 12(1) + 6(16) = 180 uma' },
+        'KMNO4': { masa: 158.0, detalle: '39 + 55 + 4(16) = 158 uma' },
+        'NAHCO3': { masa: 84.0, detalle: '23 + 1 + 12 + 3(16) = 84 uma' },
+        'CA3(PO4)2': { masa: 310.0, detalle: '3(40) + 2[31 + 4(16)] = 310 uma' },
+        'NH3': { masa: 17.0, detalle: '14 + 3(1) = 17 uma' },
+        'CH4': { masa: 16.0, detalle: '12 + 4(1) = 16 uma' },
+        'HNO3': { masa: 63.0, detalle: '1 + 14 + 3(16) = 63 uma' },
+        'MGO': { masa: 40.3, detalle: '24.3 + 16 ≈ 40 uma' },
+        'K2CR2O7': { masa: 294.0, detalle: '2(39) + 2(52) + 7(16) = 294 uma' },
+        'AL2(SO4)3': { masa: 342.0, detalle: '2(27) + 3[32 + 4(16)] = 342 uma' },
+        'H3PO4': { masa: 98.0, detalle: '3(1) + 31 + 4(16) = 98 uma' },
+        'CACO3': { masa: 100.0, detalle: '40 + 12 + 3(16) = 100 uma' },
+        'FECL3': { masa: 162.5, detalle: '56 + 3(35.5) = 162.5 uma' },
+        'NA2SO4': { masa: 142.0, detalle: '2(23) + 32 + 4(16) = 142 uma' },
+        'SO2': { masa: 64.0, detalle: '32 + 2(16) = 64 uma' },
+        'MGF2': { masa: 62.3, detalle: '24.3 + 2(19) = 62.3 uma' },
+        'O3': { masa: 48.0, detalle: '3(16) = 48 uma' }
+    };
+
+    const eODB = {
+        'K2CR2O7-CR': { eo: '+6', calculo: '2(+1) + 2(Cr) + 7(-2) = 0 → 2Cr = 12 → Cr = +6' },
+        'H2SO4-S': { eo: '+6', calculo: '2(+1) + S + 4(-2) = 0 → S = +6' },
+        'NANO3-N': { eo: '+5', calculo: '+1 + N + 3(-2) = 0 → N = +5' },
+        'CACRO4-CR': { eo: '+6', calculo: '+2 + Cr + 4(-2) = 0 → Cr = +6' },
+        'FE2O3-FE': { eo: '+3', calculo: '2(Fe) + 3(-2) = 0 → 2Fe = 6 → Fe = +3' },
+        'KMNO4-MN': { eo: '+7', calculo: '+1 + Mn + 4(-2) = 0 → Mn = +7' },
+        'NA2S2O3-S': { eo: '+2', calculo: '2(+1) + 2(S) + 3(-2) = 0 → 2S = 4 → S = +2' },
+        'H3PO4-P': { eo: '+5', calculo: '3(+1) + P + 4(-2) = 0 → P = +5' },
+        'CL2O7-CL': { eo: '+7', calculo: '2(Cl) + 7(-2) = 0 → 2Cl = 14 → Cl = +7' },
+        'NABRO3-BR': { eo: '+5', calculo: '+1 + Br + 3(-2) = 0 → Br = +5' },
+        'NACLO-CL': { eo: '+1', calculo: '+1 + Cl + (-2) = 0 → Cl = +1' },
+        'MNO2-MN': { eo: '+4', calculo: 'Mn + 2(-2) = 0 → Mn = +4' },
+        'CRCL3-CR': { eo: '+3', calculo: 'Cr + 3(-1) = 0 → Cr = +3' },
+        'HNO2-N': { eo: '+3', calculo: '+1 + N + 2(-2) = 0 → N = +3' },
+        'KCLO4-CL': { eo: '+7', calculo: '+1 + Cl + 4(-2) = 0 → Cl = +7' },
+        'SO2-S': { eo: '+4', calculo: 'S + 2(-2) = 0 → S = +4' },
+        'N2O5-N': { eo: '+5', calculo: '2(N) + 5(-2) = 0 → 2N = 10 → N = +5' },
+        'FEO-FE': { eo: '+2', calculo: 'Fe + (-2) = 0 → Fe = +2' }
+    };
+
+    const nombresDB = {
+        'FE2O3': { stock: 'Óxido de hierro(III)', tradicional: 'Óxido férrico', sistematica: 'Trióxido de dihierro' },
+        'FEO': { stock: 'Óxido de hierro(II)', tradicional: 'Óxido ferroso', sistematica: 'Monóxido de hierro' },
+        'H2SO4': { stock: 'Ácido tetraoxosulfúrico(VI)', tradicional: 'Ácido sulfúrico', sistematica: 'Ácido sulfúrico' },
+        'NAOH': { stock: 'Hidróxido de sodio', tradicional: 'Hidróxido de sodio', sistematica: 'Hidróxido de sodio' },
+        'CA(OH)2': { stock: 'Hidróxido de calcio', tradicional: 'Hidróxido de calcio', sistematica: 'Dihidróxido de calcio' },
+        'HCLO4': { stock: 'Ácido tetraoxoclórico(VII)', tradicional: 'Ácido perclórico', sistematica: 'Ácido perclórico' },
+        'CO2': { stock: 'Óxido de carbono(IV)', tradicional: 'Anhídrido carbónico', sistematica: 'Dióxido de carbono' },
+        'SO3': { stock: 'Óxido de azufre(VI)', tradicional: 'Anhídrido sulfúrico', sistematica: 'Trióxido de azufre' },
+        'NACL': { stock: 'Cloruro de sodio', tradicional: 'Cloruro de sodio', sistematica: 'Cloruro de sodio' },
+        'K2CR2O7': { stock: 'Dicromato de potasio', tradicional: 'Dicromato de potasio', sistematica: 'Dicromato(VI) de potasio' },
+        'KMNO4': { stock: 'Permanganato de potasio', tradicional: 'Permanganato de potasio', sistematica: 'Tetraoxomanganato(VII) de potasio' },
+        'HNO3': { stock: 'Ácido trioxonítrico(V)', tradicional: 'Ácido nítrico', sistematica: 'Ácido nítrico' },
+        'CACO3': { stock: 'Carbonato de calcio', tradicional: 'Carbonato de calcio', sistematica: 'Trioxocarbonato(IV) de calcio' },
+        'FECL3': { stock: 'Cloruro de hierro(III)', tradicional: 'Cloruro férrico', sistematica: 'Tricloruro de hierro' },
+        'H3PO4': { stock: 'Ácido tetraoxofosfórico(V)', tradicional: 'Ácido fosfórico', sistematica: 'Ácido ortofosfórico' },
+        'NA2SO4': { stock: 'Sulfato de sodio', tradicional: 'Sulfato de sodio', sistematica: 'Tetraoxosulfato(VI) de sodio' },
+        'NH3': { stock: 'Trihidruro de nitrógeno', tradicional: 'Amoniaco', sistematica: 'Amoniaco' },
+        'AL2(SO4)3': { stock: 'Sulfato de aluminio', tradicional: 'Sulfato de aluminio', sistematica: 'Tris(tetraoxosulfato(VI)) de dialuminio' },
+        'MGO': { stock: 'Óxido de magnesio', tradicional: 'Óxido de magnesio', sistematica: 'Monóxido de magnesio' },
+        'NAHCO3': { stock: 'Carbonato ácido de sodio', tradicional: 'Bicarbonato de sodio', sistematica: 'Trioxocarbonato(IV) de sodio' }
+    };
+
+    // ================= FUNCIONES ACTUALIZADAS =================
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function calcularMasaMolecular() {
+        const formula = document.getElementById('masa-formula').value.trim().toUpperCase();
+        const resDiv = document.getElementById('masa-resultado');
+        if (!formula) { mostrarError(resDiv, 'Ingresa una fórmula química'); return; }
+        const dato = masasDB[formula];
+        if (dato) {
+            resDiv.innerHTML = `<strong>Resultados:</strong><br>Fórmula: <span class="formula">${formula}</span><br>Masa Molecular/Fórmula: <strong>${dato.masa} uma</strong><br><em>Cálculo: ${dato.detalle}</em>`;
+        } else {
+            resDiv.innerHTML = `<span style="color: #ff9800;">⚠️ Fórmula no encontrada. Prueba con: H2O, CO2, NaCl, H2SO4, Ca(OH)2, K2Cr2O7, KMnO4, C6H12O6, H3PO4, Fe2(CO3)3, NaHCO3, Al2(SO4)3, CaCO3, MgO, NH3, SO2, O3, Na2SO4, FeCl3, NANO3</span>`;
         }
-        
-        // Tabs para calculadoras
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+        resDiv.classList.add('show');
+    }
+
+    function calcularEstadoOxidacion() {
+        const formula = document.getElementById('eo-formula').value.trim().toUpperCase();
+        const elemento = document.getElementById('eo-elemento').value.trim().toUpperCase();
+        const resDiv = document.getElementById('eo-resultado');
+        if (!formula || !elemento) { mostrarError(resDiv, 'Ingresa fórmula y elemento'); return; }
+        const key = `${formula}-${elemento}`;
+        const dato = eODB[key];
+        if (dato) {
+            resDiv.innerHTML = `<strong>Estado de Oxidación de ${elemento} en ${formula}:</strong><br>E.O. = <strong>${dato.eo}</strong><br><em>Cálculo: ${dato.calculo}</em>`;
+        } else {
+            resDiv.innerHTML = `<span style="color: #ff9800;">⚠️ Ejemplo no disponible. Prueba con: K2Cr2O7 (Cr), H2SO4 (S), NANO3 (N), Fe2O3 (Fe), KMnO4 (Mn), H3PO4 (P), Cl2O7 (Cl), NABRO3 (Br), MNO2 (Mn), CRCL3 (Cr), KCLO4 (Cl), HNO2 (N), SO2 (S), N2O5 (N), FEO (Fe), NA2S2O3 (S)</span>`;
         }
-        
-        // Calculadora de Masa Molecular
-        function calcularMasaMolecular() {
-            const formula = document.getElementById('masa-formula').value.trim();
-            const resultadoDiv = document.getElementById('masa-resultado');
-            
-            if (!formula) {
-                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa una fórmula química</span>';
-                resultadoDiv.classList.add('show');
-                return;
-            }
-            
-            // Masas atómicas simplificadas
-            const masasAtomicas = {
-                'H': 1, 'C': 12, 'N': 14, 'O': 16, 'F': 19, 'Na': 23, 'Mg': 24,
-                'Al': 27, 'Si': 28, 'P': 31, 'S': 32, 'Cl': 35.5, 'K': 39, 'Ca': 40,
-                'Fe': 56, 'Cu': 63.5, 'Zn': 65, 'Br': 80, 'Ag': 108, 'I': 127
-            };
-            
-            // Cálculo simplificado (ejemplo básico)
-            let masaTotal = 0;
-            let detalle = [];
-            
-            // Ejemplos predefinidos para demostración
-            const ejemplos = {
-                'H2O': { masa: 18, detalle: '2(1) + 16 = 18 uma' },
-                'H2SO4': { masa: 98, detalle: '2(1) + 32 + 4(16) = 98 uma' },
-                'Ca(OH)2': { masa: 74, detalle: '40 + 2(16+1) = 74 uma' },
-                'Fe2(CO3)3': { masa: 292, detalle: '2(56) + 3[12+3(16)] = 292 uma' },
-                'C6H12O6': { masa: 180, detalle: '6(12) + 12(1) + 6(16) = 180 uma' },
-                'NaCl': { masa: 58.5, detalle: '23 + 35.5 = 58.5 uma' },
-                'CO2': { masa: 44, detalle: '12 + 2(16) = 44 uma' }
-            };
-            
-            if (ejemplos[formula]) {
-                masaTotal = ejemplos[formula].masa;
-                detalle = ejemplos[formula].detalle;
-            } else {
-                resultadoDiv.innerHTML = '<span style="color: #ff9800;">⚠️ Fórmula no reconocida en la base de datos. Prueba con: H2O, H2SO4, Ca(OH)2, Fe2(CO3)3, C6H12O6, NaCl, CO2</span>';
-                resultadoDiv.classList.add('show');
-                return;
-            }
-            
-            resultadoDiv.innerHTML = `
-                <strong>Resultados:</strong><br>
-                Fórmula: <span class="formula">${formula}</span><br>
-                Masa Molecular/Fórmula: <strong>${masaTotal} uma</strong><br>
-                <em>Cálculo: ${detalle}</em>
+        resDiv.classList.add('show');
+    }
+
+    function formularCompuesto() {
+        const tipo = document.getElementById('form-tipo').value;
+        const elemento = document.getElementById('form-elemento').value.trim();
+        const eo = parseInt(document.getElementById('form-eo').value);
+        const resDiv = document.getElementById('form-resultado');
+        if (!elemento || isNaN(eo)) { mostrarError(resDiv, 'Ingresa elemento y estado de oxidación'); return; }
+
+        let formula = '', explicacion = '';
+        const elem = elemento.charAt(0).toUpperCase() + elemento.slice(1).toLowerCase();
+
+        switch(tipo) {
+            case 'oxido-basico':
+                formula = eo % 2 === 0 ? `${elem}O${eo/2 === 1 ? '' : eo/2}` : `${elem}2O${eo}`;
+                explicacion = `Metal ${elem} (+${eo}) + O (-2) → Intercambio de cargas`;
+                break;
+            case 'oxido-acido':
+                formula = eo % 2 === 0 ? `${elem}O${eo/2 === 1 ? '' : eo/2}` : `${elem}2O${eo}`;
+                explicacion = `No Metal ${elem} (+${eo}) + O (-2) → Intercambio de cargas`;
+                break;
+            case 'hidroxido':
+                formula = `${elem}(OH)${eo === 1 ? '' : eo}`;
+                explicacion = `Metal ${elem} (+${eo}) + Grupo OH⁻`;
+                break;
+            case 'acido-oxacido':
+                const h = (eo % 2 !== 0) ? 'H' : 'H2';
+                const o = (eo % 2 !== 0) ? `O${(eo+1)/2}` : `O${(eo+2)/2}`;
+                formula = `${h}${elem}${o}`;
+                explicacion = `Regla: E.O. ${eo % 2 !== 0 ? 'impar → H₁NMO₍ₓ₊₁₎/₂' : 'par → H₂NMO₍y₊₂₎/₂'}`;
+                break;
+            default:
+                formula = 'Fórmula en desarrollo'; explicacion = '';
+        }
+        resDiv.innerHTML = `<strong>Fórmula Generada:</strong><br><span class="formula" style="font-size: 1.5rem;">${formula}</span><br><em>${explicacion}</em>`;
+        resDiv.classList.add('show');
+    }
+
+    function nombrarCompuesto() {
+        const formula = document.getElementById('nom-formula').value.trim().toUpperCase();
+        const sistema = document.getElementById('nom-sistema').value;
+        const resDiv = document.getElementById('nom-resultado');
+        if (!formula) { mostrarError(resDiv, 'Ingresa una fórmula'); return; }
+
+        const dato = nombresDB[formula];
+        if (dato) {
+            resDiv.innerHTML = `<strong>Nombre en sistema ${sistema.toUpperCase()}:</strong><br><span style="font-size: 1.3rem; color: var(--reptile-green); font-weight: 600;">${dato[sistema]}</span><br><em>Fórmula: ${formula}</em>`;
+        } else {
+            resDiv.innerHTML = `<span style="color: #ff9800;">⚠️ Compuesto no en base de datos. Prueba con: Fe2O3, FeO, H2SO4, NaOH, Ca(OH)2, HClO4, CO2, SO3, NaCl, K2Cr2O7, KMnO4, HNO3, CaCO3, FeCl3, H3PO4, Na2SO4, NH3, Al2(SO4)3, MgO, NaHCO3</span>`;
+        }
+        resDiv.classList.add('show');
+    }
+
+    function mostrarError(div, msg) {
+        div.innerHTML = `<span style="color: #f44336;">⚠️ ${msg}</span>`;
+        div.classList.add('show');
+    }
+
+    // Resto de funciones existentes (mapa, quiz, navegación, etc.)
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleAnswer(card) {
+        const answer = card.querySelector('.exercise-answer');
+        const btn = card.querySelector('.reveal-btn');
+        answer.classList.toggle('show');
+        btn.textContent = answer.classList.contains('show') ? 'Ocultar Respuesta' : 'Mostrar Respuesta';
+        btn.style.background = answer.classList.contains('show') ? 'var(--reptile-green)' : 'var(--sand)';
+        btn.style.color = answer.classList.contains('show') ? 'white' : 'var(--reptile-dark)';
+    }
+
+    function showCompoundInfo(tipo) {
+        const infoDiv = document.getElementById('compound-info');
+        const titleDiv = document.getElementById('info-title');
+        const contentDiv = document.getElementById('info-content');
+        const info = {
+            'ionicos': { title: '⚡ Compuestos Iónicos', content: '<strong>Formación:</strong> Metal + No Metal<br><strong>Enlace:</strong> Iónico (transferencia de electrones)<br><strong>Ejemplos:</strong> NaCl, CaF₂, KNO₃<br><strong>Propiedades:</strong> Sólidos cristalinos, altos puntos de fusión, conducen electricidad en solución.' },
+            'moleculares': { title: '🔗 Compuestos Moleculares', content: '<strong>Formación:</strong> No Metal + No Metal<br><strong>Enlace:</strong> Covalente (comparten electrones)<br><strong>Ejemplos:</strong> CO₂, H₂O, BF₃<br><strong>Propiedades:</strong> Bajos puntos de fusión, forman moléculas discretas.' },
+            'oxidos-basicos': { title: 'Óxidos Básicos', content: '<strong>Fórmula:</strong> M₂Oₙ<br><strong>Formación:</strong> Metal + O₂<br><strong>Ejemplo:</strong> Fe₂O₃ (óxido de hierro III)<br><strong>Reacción:</strong> Óxido básico + H₂O → Hidróxido' },
+            'oxidos-acidos': { title: 'Óxidos Ácidos', content: '<strong>Fórmula:</strong> NM₂Oₙ<br><strong>Formación:</strong> No Metal + O₂<br><strong>Ejemplo:</strong> SO₃ (óxido de azufre VI)<br><strong>Reacción:</strong> Óxido ácido + H₂O → Ácido oxácido' },
+            'hidroxidos': { title: 'Hidróxidos (Bases)', content: '<strong>Fórmula:</strong> M(OH)ₙ<br><strong>Formación:</strong> Óxido básico + H₂O<br><strong>Ejemplo:</strong> NaOH, Ca(OH)₂<br><strong>Propiedad:</strong> Naturaleza básica, pH > 7' },
+            'acidos-oxacidos': { title: 'Ácidos Oxácidos', content: '<strong>Fórmula:</strong> HₙNMOₓ<br><strong>Formación:</strong> Óxido ácido + H₂O<br><strong>Ejemplo:</strong> H₂SO₄, HNO₃, HClO₄<br><strong>Nomenclatura:</strong> hipo-oso, -oso, -ico, per-ico' },
+            'hidruros-metalicos': { title: 'Hidruros Metálicos', content: '<strong>Fórmula:</strong> MHₙ<br><strong>Formación:</strong> Metal + H₂<br><strong>Ejemplo:</strong> NaH, CaH₂<br><strong>E.O. del H:</strong> -1' },
+            'hidruros-no-metalicos': { title: 'Hidruros No Metálicos', content: '<strong>Fórmula:</strong> HₙNM<br><strong>Formación:</strong> No Metal + H₂<br><strong>Ejemplo:</strong> HF, H₂S, NH₃<br><strong>E.O. del H:</strong> +1' },
+            'acidos-hidracidos': { title: 'Ácidos Hidrácidos', content: '<strong>Fórmula:</strong> HₙNM (en solución acuosa)<br><strong>Elementos:</strong> Grupo VIA y VIIA<br><strong>Ejemplo:</strong> HCl(ac), H₂S(ac)<br><strong>Nomenclatura:</strong> Ácido + no metal + hídrico' },
+            'sales': { title: 'Sales', content: '<strong>Formación:</strong> Ácido + Base<br><strong>Ejemplo:</strong> NaCl, CaCO₃, KNO₃<br><strong>Tipos:</strong> Binarias, ternarias, cuaternarias' }
+        };
+        if (info[tipo]) {
+            titleDiv.textContent = info[tipo].title;
+            contentDiv.innerHTML = info[tipo].content;
+            infoDiv.style.display = 'block';
+            infoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function highlightNode(node) { node.classList.add('highlight'); setTimeout(() => node.classList.remove('highlight'), 2000); }
+
+    const quizQuestions = [
+        { question: '¿Cuál es el estado de oxidación del Cr en K₂Cr₂O₇?', options: ['+3', '+6', '+7', '+2'], correct: 1, explanation: '2(+1) + 2(Cr) + 7(-2) = 0 → 2Cr = 12 → Cr = +6' },
+        { question: '¿Qué tipo de compuesto es CO₂?', options: ['Iónico', 'Molecular', 'Hidróxido', 'Sal'], correct: 1, explanation: 'CO₂ está formado por dos no metales (C y O) unidos por enlace covalente.' },
+        { question: '¿Cuál es el nombre tradicional de Fe₂O₃?', options: ['Óxido de hierro(II)', 'Óxido ferroso', 'Óxido férrico', 'Trióxido de dihierro'], correct: 2, explanation: 'Fe con E.O. +3 usa el sufijo -ico en nomenclatura tradicional: férrico.' },
+        { question: '¿Qué fórmula corresponde al ácido sulfúrico?', options: ['H₂SO₃', 'H₂SO₄', 'HSO₄', 'H₃SO₄'], correct: 1, explanation: 'El azufre con E.O. +6 forma H₂SO₄ (ácido sulfúrico).' },
+        { question: '¿Cuál es la masa molecular del H₂O?', options: ['16 uma', '17 uma', '18 uma', '20 uma'], correct: 2, explanation: '2(1) + 16 = 18 uma' },
+        { question: '¿Qué compuesto se forma cuando un óxido ácido reacciona con agua?', options: ['Hidróxido', 'Ácido oxácido', 'Sal', 'Hidruro'], correct: 1, explanation: 'Óxido ácido + H₂O → Ácido oxácido' }
+    ];
+
+    function loadQuiz() {
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = '';
+        quizQuestions.forEach((q, index) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-container'; div.style.marginBottom = '2rem';
+            div.innerHTML = `
+                <div class="quiz-question">${index + 1}. ${q.question}</div>
+                <div class="quiz-options">
+                    ${q.options.map((opt, i) => `<button class="quiz-option" onclick="checkAnswer(${index}, ${i}, this)">${opt}</button>`).join('')}
+                </div>
+                <div class="quiz-feedback" id="feedback-${index}"></div>
             `;
-            resultadoDiv.classList.add('show');
-        }
-        
-        // Calculadora de Estado de Oxidación
-        function calcularEstadoOxidacion() {
-            const formula = document.getElementById('eo-formula').value.trim();
-            const elemento = document.getElementById('eo-elemento').value.trim();
-            const resultadoDiv = document.getElementById('eo-resultado');
-            
-            if (!formula || !elemento) {
-                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa fórmula y elemento</span>';
-                resultadoDiv.classList.add('show');
-                return;
-            }
-            
-            // Ejemplos predefinidos
-            const ejemplos = {
-                'K2Cr2O7-Cr': { eo: '+6', calculo: '2(+1) + 2(Cr) + 7(-2) = 0 → 2Cr = 12 → Cr = +6' },
-                'H2SO4-S': { eo: '+6', calculo: '2(+1) + S + 4(-2) = 0 → S = +6' },
-                'NaNO3-N': { eo: '+5', calculo: '+1 + N + 3(-2) = 0 → N = +5' },
-                'CaCrO4-Cr': { eo: '+6', calculo: '+2 + Cr + 4(-2) = 0 → Cr = +6' },
-                'Fe2O3-Fe': { eo: '+3', calculo: '2(Fe) + 3(-2) = 0 → 2Fe = 6 → Fe = +3' },
-                'KMnO4-Mn': { eo: '+7', calculo: '+1 + Mn + 4(-2) = 0 → Mn = +7' }
-            };
-            
-            const key = `${formula}-${elemento}`;
-            
-            if (ejemplos[key]) {
-                resultadoDiv.innerHTML = `
-                    <strong>Estado de Oxidación de ${elemento} en ${formula}:</strong><br>
-                    E.O. = <strong>${ejemplos[key].eo}</strong><br>
-                    <em>Cálculo: ${ejemplos[key].calculo}</em>
-                `;
-                resultadoDiv.classList.add('show');
-            } else {
-                resultadoDiv.innerHTML = '<span style="color: #ff9800;">⚠️ Ejemplo no disponible. Prueba con: K2Cr2O7 (Cr), H2SO4 (S), NaNO3 (N), Fe2O3 (Fe), KMnO4 (Mn)</span>';
-                resultadoDiv.classList.add('show');
-            }
-        }
-        
-        // Formulador de Compuestos
-        function formularCompuesto() {
-            const tipo = document.getElementById('form-tipo').value;
-            const elemento = document.getElementById('form-elemento').value.trim();
-            const eo = parseInt(document.getElementById('form-eo').value);
-            const resultadoDiv = document.getElementById('form-resultado');
-            
-            if (!elemento || isNaN(eo)) {
-                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa elemento y estado de oxidación</span>';
-                resultadoDiv.classList.add('show');
-                return;
-            }
-            
-            let formula = '';
-            let explicacion = '';
-            
-            switch(tipo) {
-                case 'oxido-basico':
-                    if (eo % 2 === 0) {
-                        formula = `${elemento}O${eo/2}`;
-                        if (eo/2 === 1) formula = `${elemento}O`;
-                    } else {
-                        formula = `${elemento}2O${eo}`;
-                    }
-                    explicacion = `Metal ${elemento} con E.O. +${eo} + Oxígeno (O⁻²)`;
-                    break;
-                    
-                case 'oxido-acido':
-                    if (eo % 2 === 0) {
-                        formula = `${elemento}O${eo/2}`;
-                        if (eo/2 === 1) formula = `${elemento}O`;
-                    } else {
-                        formula = `${elemento}2O${eo}`;
-                    }
-                    explicacion = `No Metal ${elemento} con E.O. +${eo} + Oxígeno (O⁻²)`;
-                    break;
-                    
-                case 'hidroxido':
-                    formula = `${elemento}(OH)${eo}`;
-                    if (eo === 1) formula = `${elemento}OH`;
-                    explicacion = `Metal ${elemento} con E.O. +${eo} + Grupo OH⁻`;
-                    break;
-                    
-                default:
-                    formula = 'Fórmula en desarrollo';
-                    explicacion = 'Tipo de compuesto en proceso';
-            }
-            
-            resultadoDiv.innerHTML = `
-                <strong>Fórmula Generada:</strong><br>
-                <span class="formula" style="font-size: 1.5rem;">${formula}</span><br>
-                <em>${explicacion}</em>
-            `;
-            resultadoDiv.classList.add('show');
-        }
-        
-        // Nombrador de Compuestos
-        function nombrarCompuesto() {
-            const formula = document.getElementById('nom-formula').value.trim();
-            const sistema = document.getElementById('nom-sistema').value;
-            const resultadoDiv = document.getElementById('nom-resultado');
-            
-            if (!formula) {
-                resultadoDiv.innerHTML = '<span style="color: #f44336;">⚠️ Ingresa una fórmula</span>';
-                resultadoDiv.classList.add('show');
-                return;
-            }
-            
-            // Base de datos de ejemplos
-            const ejemplos = {
-                'Fe2O3': {
-                    stock: 'Óxido de hierro(III)',
-                    tradicional: 'Óxido férrico',
-                    sistematica: 'Trióxido de dihierro'
-                },
-                'FeO': {
-                    stock: 'Óxido de hierro(II)',
-                    tradicional: 'Óxido ferroso',
-                    sistematica: 'Monóxido de hierro'
-                },
-                'H2SO4': {
-                    stock: 'Ácido tetraoxosulfúrico(VI)',
-                    tradicional: 'Ácido sulfúrico',
-                    sistematica: 'Ácido sulfúrico'
-                },
-                'NaOH': {
-                    stock: 'Hidróxido de sodio',
-                    tradicional: 'Hidróxido de sodio',
-                    sistematica: 'Hidróxido de sodio'
-                },
-                'Ca(OH)2': {
-                    stock: 'Hidróxido de calcio',
-                    tradicional: 'Hidróxido de calcio',
-                    sistematica: 'Dihidróxido de calcio'
-                },
-                'HClO4': {
-                    stock: 'Ácido tetraoxoclórico(VII)',
-                    tradicional: 'Ácido perclórico',
-                    sistematica: 'Ácido perclórico'
-                }
-            };
-            
-            if (ejemplos[formula]) {
-                resultadoDiv.innerHTML = `
-                    <strong>Nombre en sistema ${sistema.toUpperCase()}:</strong><br>
-                    <span style="font-size: 1.3rem; color: var(--reptile-green); font-weight: 600;">
-                        ${ejemplos[formula][sistema]}
-                    </span><br>
-                    <em>Fórmula: ${formula}</em>
-                `;
-                resultadoDiv.classList.add('show');
-            } else {
-                resultadoDiv.innerHTML = '<span style="color: #ff9800;">⚠️ Compuesto no en base de datos. Prueba con: Fe2O3, FeO, H2SO4, NaOH, Ca(OH)2, HClO4</span>';
-                resultadoDiv.classList.add('show');
-            }
-        }
-        
-        // Ejercicios interactivos
-        function toggleAnswer(card) {
-            const answer = card.querySelector('.exercise-answer');
-            const btn = card.querySelector('.reveal-btn');
-            
-            answer.classList.toggle('show');
-            
-            if (answer.classList.contains('show')) {
-                btn.textContent = 'Ocultar Respuesta';
-                btn.style.background = 'var(--reptile-green)';
-                btn.style.color = 'white';
-            } else {
-                btn.textContent = 'Mostrar Respuesta';
-                btn.style.background = 'var(--sand)';
-                btn.style.color = 'var(--reptile-dark)';
-            }
-        }
-        
-        // Mapa conceptual
-        function showCompoundInfo(tipo) {
-            const infoDiv = document.getElementById('compound-info');
-            const titleDiv = document.getElementById('info-title');
-            const contentDiv = document.getElementById('info-content');
-            
-            const info = {
-                'ionicos': {
-                    title: '⚡ Compuestos Iónicos',
-                    content: '<strong>Formación:</strong> Metal + No Metal<br><strong>Enlace:</strong> Iónico (transferencia de electrones)<br><strong>Ejemplos:</strong> NaCl, CaF₂, KNO₃<br><strong>Propiedades:</strong> Sólidos cristalinos, altos puntos de fusión, conducen electricidad en solución.'
-                },
-                'moleculares': {
-                    title: '🔗 Compuestos Moleculares',
-                    content: '<strong>Formación:</strong> No Metal + No Metal<br><strong>Enlace:</strong> Covalente (comparten electrones)<br><strong>Ejemplos:</strong> CO₂, H₂O, BF₃<br><strong>Propiedades:</strong> Bajos puntos de fusión, forman moléculas discretas.'
-                },
-                'oxidos-basicos': {
-                    title: 'Óxidos Básicos',
-                    content: '<strong>Fórmula:</strong> M₂Oₙ<br><strong>Formación:</strong> Metal + O₂<br><strong>Ejemplo:</strong> Fe₂O₃ (óxido de hierro III)<br><strong>Reacción:</strong> Óxido básico + H₂O → Hidróxido'
-                },
-                'oxidos-acidos': {
-                    title: 'Óxidos Ácidos',
-                    content: '<strong>Fórmula:</strong> NM₂Oₙ<br><strong>Formación:</strong> No Metal + O₂<br><strong>Ejemplo:</strong> SO₃ (óxido de azufre VI)<br><strong>Reacción:</strong> Óxido ácido + H₂O → Ácido oxácido'
-                },
-                'hidroxidos': {
-                    title: 'Hidróxidos (Bases)',
-                    content: '<strong>Fórmula:</strong> M(OH)ₙ<br><strong>Formación:</strong> Óxido básico + H₂O<br><strong>Ejemplo:</strong> NaOH, Ca(OH)₂<br><strong>Propiedad:</strong> Naturaleza básica, pH > 7'
-                },
-                'acidos-oxacidos': {
-                    title: 'Ácidos Oxácidos',
-                    content: '<strong>Fórmula:</strong> HₙNMOₓ<br><strong>Formación:</strong> Óxido ácido + H₂O<br><strong>Ejemplo:</strong> H₂SO₄, HNO₃, HClO₄<br><strong>Nomenclatura:</strong> hipo-oso, -oso, -ico, per-ico'
-                },
-                'hidruros-metalicos': {
-                    title: 'Hidruros Metálicos',
-                    content: '<strong>Fórmula:</strong> MHₙ<br><strong>Formación:</strong> Metal + H₂<br><strong>Ejemplo:</strong> NaH, CaH₂<br><strong>E.O. del H:</strong> -1'
-                },
-                'hidruros-no-metalicos': {
-                    title: 'Hidruros No Metálicos',
-                    content: '<strong>Fórmula:</strong> HₙNM<br><strong>Formación:</strong> No Metal + H₂<br><strong>Ejemplo:</strong> HF, H₂S, NH₃<br><strong>E.O. del H:</strong> +1'
-                },
-                'acidos-hidracidos': {
-                    title: 'Ácidos Hidrácidos',
-                    content: '<strong>Fórmula:</strong> HₙNM (en solución acuosa)<br><strong>Elementos:</strong> Grupo VIA y VIIA<br><strong>Ejemplo:</strong> HCl(ac), H₂S(ac)<br><strong>Nomenclatura:</strong> Ácido + no metal + hídrico'
-                },
-                'sales': {
-                    title: 'Sales',
-                    content: '<strong>Formación:</strong> Ácido + Base<br><strong>Ejemplo:</strong> NaCl, CaCO₃, KNO₃<br><strong>Tipos:</strong> Binarias, ternarias, cuaternarias'
-                }
-            };
-            
-            if (info[tipo]) {
-                titleDiv.textContent = info[tipo].title;
-                contentDiv.innerHTML = info[tipo].content;
-                infoDiv.style.display = 'block';
-                infoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-        
-        function highlightNode(node) {
-            node.classList.add('highlight');
-            setTimeout(() => {
-                node.classList.remove('highlight');
-            }, 2000);
-        }
-        
-        // Quiz interactivo
-        const quizQuestions = [
-            {
-                question: '¿Cuál es el estado de oxidación del Cr en K₂Cr₂O₇?',
-                options: ['+3', '+6', '+7', '+2'],
-                correct: 1,
-                explanation: '2(+1) + 2(Cr) + 7(-2) = 0 → 2Cr = 12 → Cr = +6'
-            },
-            {
-                question: '¿Qué tipo de compuesto es CO₂?',
-                options: ['Iónico', 'Molecular', 'Hidróxido', 'Sal'],
-                correct: 1,
-                explanation: 'CO₂ está formado por dos no metales (C y O) unidos por enlace covalente.'
-            },
-            {
-                question: '¿Cuál es el nombre tradicional de Fe₂O₃?',
-                options: ['Óxido de hierro(II)', 'Óxido ferroso', 'Óxido férrico', 'Trióxido de dihierro'],
-                correct: 2,
-                explanation: 'Fe con E.O. +3 usa el sufijo -ico en nomenclatura tradicional: férrico.'
-            },
-            {
-                question: '¿Qué fórmula corresponde al ácido sulfúrico?',
-                options: ['H₂SO₃', 'H₂SO₄', 'HSO₄', 'H₃SO₄'],
-                correct: 1,
-                explanation: 'El azufre con E.O. +6 forma H₂SO₄ (ácido sulfúrico).'
-            },
-            {
-                question: '¿Cuál es la masa molecular del H₂O?',
-                options: ['16 uma', '17 uma', '18 uma', '20 uma'],
-                correct: 2,
-                explanation: '2(1) + 16 = 18 uma'
-            },
-            {
-                question: '¿Qué compuesto se forma cuando un óxido ácido reacciona con agua?',
-                options: ['Hidróxido', 'Ácido oxácido', 'Sal', 'Hidruro'],
-                correct: 1,
-                explanation: 'Óxido ácido + H₂O → Ácido oxácido'
-            }
-        ];
-        
-        let currentQuestion = 0;
-        let score = 0;
-        
-        function loadQuiz() {
-            const container = document.getElementById('quiz-container');
-            container.innerHTML = '';
-            
-            quizQuestions.forEach((q, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'quiz-container';
-                questionDiv.style.marginBottom = '2rem';
-                
-                questionDiv.innerHTML = `
-                    <div class="quiz-question">${index + 1}. ${q.question}</div>
-                    <div class="quiz-options">
-                        ${q.options.map((opt, i) => `
-                            <button class="quiz-option" onclick="checkAnswer(${index}, ${i}, this)">
-                                ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div class="quiz-feedback" id="feedback-${index}"></div>
-                `;
-                
-                container.appendChild(questionDiv);
-            });
-        }
-        
-        function checkAnswer(questionIndex, selectedIndex, button) {
-            const question = quizQuestions[questionIndex];
-            const feedback = document.getElementById(`feedback-${questionIndex}`);
-            const options = button.parentElement.querySelectorAll('.quiz-option');
-            
-            // Deshabilitar todos los botones
-            options.forEach(opt => opt.disabled = true);
-            
-            if (selectedIndex === question.correct) {
-                button.classList.add('correct');
-                feedback.innerHTML = `<span style="color: #4caf50;">✅ ¡Correcto!</span><br>${question.explanation}`;
-                feedback.style.background = '#e8f5e9';
-            } else {
-                button.classList.add('incorrect');
-                options[question.correct].classList.add('correct');
-                feedback.innerHTML = `<span style="color: #f44336;">❌ Incorrecto</span><br>${question.explanation}`;
-                feedback.style.background = '#ffebee';
-            }
-            
-            feedback.classList.add('show');
-        }
-        
-        function reiniciarQuiz() {
-            loadQuiz();
-        }
-        
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
-            loadQuiz();
+            container.appendChild(div);
         });
-    </script>
+    }
+
+    function checkAnswer(qIdx, sIdx, btn) {
+        const q = quizQuestions[qIdx];
+        const fb = document.getElementById(`feedback-${qIdx}`);
+        const opts = btn.parentElement.querySelectorAll('.quiz-option');
+        opts.forEach(o => o.disabled = true);
+        if (sIdx === q.correct) {
+            btn.classList.add('correct');
+            fb.innerHTML = `<span style="color: #4caf50;">✅ ¡Correcto!</span><br>${q.explanation}`;
+            fb.style.background = '#e8f5e9';
+        } else {
+            btn.classList.add('incorrect');
+            opts[q.correct].classList.add('correct');
+            fb.innerHTML = `<span style="color: #f44336;">❌ Incorrecto</span><br>${q.explanation}`;
+            fb.style.background = '#ffebee';
+        }
+        fb.classList.add('show');
+    }
+
+    function reiniciarQuiz() { loadQuiz(); }
+    document.addEventListener('DOMContentLoaded', () => loadQuiz());
+</script>
 </body>
 </html>
